@@ -4,7 +4,7 @@ import re
 import sys
 
 print(sys.argv)
-print(len(sys.argv))
+print(len(sys.argv)-2)
 if len(sys.argv) >= 3:
   url = sys.argv[1]
   papers = sys.argv[2::]
@@ -22,7 +22,8 @@ papers = [
 
 headers = {
     'referer': 'https://sci-hub.se/',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15' 
+    #'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
 }
 
 
@@ -67,7 +68,8 @@ def main(url, papers = None, headers = None, pattern = "location.href='(.*\\.pdf
     html = get_html(url, papers, headers)
     print(f"===== Get pdf path =====")
     pdf = get_pdf_path(html, pattern = pattern)
-    pdf_path = [p[0] if len(p) > 0 else None for p in pdf]
+    # pdf_path = [p[0] if len(p) > 0 else None for p in pdf]
+    pdf_path = [re.sub('^//', 'https://', p[0]) if len(p) > 0 else None for p in pdf]
     print(f"===== Get pdf content =====")
     pdf_content = get_pdf(pdf_path)
     if not isinstance(papers, list):
@@ -82,6 +84,7 @@ def main(url, papers = None, headers = None, pattern = "location.href='(.*\\.pdf
                 print(f"   success")
                 pdf_name = re.sub('[\/:?*"<>|]*', '', papers[idx])
                 pdf_name = f"{pdf_name}.pdf"
+                print(f"   Write pdf file.")
                 with open(pdf_name, "wb") as f_pdf:
                     f_pdf.write(p)
 
